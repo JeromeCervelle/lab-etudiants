@@ -1,0 +1,28 @@
+# Paramètres communs à toutes les classes — copier en terraform.tfvars
+proxmox_endpoint  = "https://siohyp2.educ-valadon-limoges.fr/"
+proxmox_api_token = "terraform@pve!tf=00000000-0000-0000-0000-000000000000"
+
+# Nœud où seront créées les VMs des étudiants.
+# Seul siohyp2 porte les bridges étudiants (siohyp1 et siohyp3 n'en ont aucun).
+node_name = "siohyp2"
+
+# Templates : VMID + nœud qui le porte (cluster)
+#   vérifié avec : ls /etc/pve/nodes/*/qemu-server/{404,267,270}.conf
+templates = {
+  sns    = { vm_id = 404, node = "siohyp1" } # Modele-SNS-4.33  (NFS-NAS, qcow2)
+  winsrv = { vm_id = 267, node = "siohyp2" } # SRV2025MODELE    (NFS-NAS, qcow2, 50 Go)
+  wincli = { vm_id = 270, node = "siohyp2" } # WIN11CLIENT      (NFS-NAS, qcow2, 70 Go)
+}
+
+# Clones liés : les 3 templates sont sur NFS-NAS (partagé), donc un clone lié
+# depuis siohyp1 vers siohyp2 fonctionne.
+linked_clone    = true
+clone_datastore = null # ex. "NFS-NAS" si linked_clone = false
+
+# Bridges étudiants existants : ETU01 = vmbr401..405, ETU02 = vmbr406..410...
+bridge_base          = 400
+bridges_par_etudiant = 5
+
+# Interface "out" des SNS
+wan_bridge  = "vmbr134" # BTSSIO BYOD Wifi (bond0.134), DHCP du lycée
+wan_vlan_id = null

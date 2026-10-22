@@ -1,0 +1,30 @@
+# Une classe = un fichier + un workspace Terraform
+#   terraform workspace new sio2026
+#   terraform apply -var-file=classes/sio2026.tfvars
+
+classe      = "sio2026"
+pool_prefix = "SIO2026_"
+
+# login = nom du pool sans le préfixe ; etu = numéro des bridges ETUxx.
+# EXEMPLE FICTIF : la vraie liste va dans classes/sio2026.tfvars (non versionné).
+# !!! Vérifie la correspondance avec les commentaires ETUxx de tes bridges,
+# !!! ou régénère-la avec scripts/genere-etudiants.sh.
+# Le numéro etu ne doit plus changer une fois les VMs créées.
+etudiants = {
+  "dupont.alice"   = { etu = 1 }
+  "martin.bilal"   = { etu = 2 }
+  "durand.chloe"   = { etu = 3 }
+  # ... une ligne par étudiant, numérotée dans l'ordre des bridges ETUxx
+}
+
+# Topologie par défaut (voir variables.tf) :
+#   SNS : out -> wan_bridge, in -> VLAN01, dmz1 -> VLAN02
+#   Client Windows -> VLAN01, Serveur Windows -> VLAN02
+# Pour la changer, décommente et adapte :
+# lab_vms = {
+#   sns = { index = 1, template = "sns",    nics = ["wan", "vlan01", "vlan02", "vlan03"], cores = 1, memory = 2048 }
+#   srv = { index = 2, template = "winsrv", nics = ["vlan02"], cores = 2, memory = 4096 }
+#   cli = { index = 3, template = "wincli", nics = ["vlan01"], cores = 2, memory = 4096 }
+# }
+
+start_vms = false
