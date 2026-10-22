@@ -25,6 +25,11 @@ resource "proxmox_virtual_environment_vm" "vm" {
   pool_id     = var.pool_id
   tags        = [var.classe, format("etu%02d", var.etu), each.key]
 
+  # Valeurs reprises des templates (sinon le provider impose seabios / en-us).
+  bios            = each.value.bios
+  scsi_hardware   = each.value.scsi_hardware
+  keyboard_layout = var.keyboard_layout
+
   # Le template peut être sur un autre nœud du cluster que la VM créée.
   clone {
     vm_id        = var.templates[each.value.template].vm_id

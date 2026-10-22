@@ -16,6 +16,7 @@ variable "clone_datastore" {
   default = null
 }
 variable "start_vms" { type = bool }
+variable "keyboard_layout" { type = string }
 variable "vmid_base" { type = number }
 
 variable "lab_vms" {
@@ -26,6 +27,8 @@ variable "lab_vms" {
     cores    = optional(number, 2)
     memory   = optional(number, 2048)
     agent    = optional(bool, false)
+    bios          = optional(string, "seabios")
+    scsi_hardware = optional(string, "virtio-scsi-single")
   }))
 }
 

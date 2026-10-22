@@ -20,6 +20,7 @@ module "lab" {
   clone_datastore = var.clone_datastore
   lab_vms         = var.lab_vms
   start_vms    = var.start_vms
+  keyboard_layout = var.keyboard_layout
   vmid_base    = var.vmid_base
 
   bridge_base          = var.bridge_base

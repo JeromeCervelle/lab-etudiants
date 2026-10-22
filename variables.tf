@@ -91,11 +91,15 @@ variable "lab_vms" {
     cores    = optional(number, 2)
     memory   = optional(number, 2048)
     agent    = optional(bool, false)
+    # Le provider impose ses valeurs par défaut au clone : elles doivent
+    # reprendre celles du template (qm config <id> | grep -E 'bios|scsihw').
+    bios          = optional(string, "seabios")         # "ovmf" pour un template UEFI
+    scsi_hardware = optional(string, "virtio-scsi-single") # scsihw des 3 templates
   }))
   default = {
     sns = { index = 1, template = "sns", nics = ["wan", "vlan01", "vlan02"], cores = 1, memory = 2048 }
-    srv = { index = 2, template = "winsrv", nics = ["vlan02"], cores = 2, memory = 4096 }
-    cli = { index = 3, template = "wincli", nics = ["vlan01"], cores = 2, memory = 4096 }
+    srv = { index = 2, template = "winsrv", nics = ["vlan02"], cores = 2, memory = 4096, bios = "ovmf" }
+    cli = { index = 3, template = "wincli", nics = ["vlan01"], cores = 2, memory = 4096, bios = "ovmf" }
   }
 
   validation {
@@ -110,6 +114,12 @@ variable "vmid_base" {
   description = "VMID = vmid_base + etu * 10 + index (ETU07 : 10071, 10072, 10073)"
   type        = number
   default     = 10000
+}
+
+variable "keyboard_layout" {
+  description = "Clavier de la console noVNC"
+  type        = string
+  default     = "fr"
 }
 
 variable "start_vms" {
