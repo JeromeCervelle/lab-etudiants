@@ -1,30 +1,55 @@
-# Une classe = un fichier + un workspace Terraform
-#   terraform workspace new sio2026
-#   terraform apply -var-file=classes/sio2026.tfvars
+###############################################################################
+# classes/sio2026.tfvars.example — Modèle de fichier de classe
+###############################################################################
+#
+# Une classe = un fichier classes/<classe>.tfvars + un workspace Terraform.
+# Le workspace sépare l'état de chaque classe : détruire une classe ne touche
+# pas les autres.
+#
+#   cp classes/sio2026.tfvars.example classes/sio2026.tfvars   # puis compléter
+#   terraform workspace new sio2026        # une seule fois
+#   terraform workspace select sio2026     # les fois suivantes
+#   terraform plan  -var-file=classes/sio2026.tfvars -out=sio2026.tfplan
+#   terraform apply -parallelism=4 sio2026.tfplan
+#
+# Le vrai fichier contient les logins des étudiants (données personnelles) :
+# il est exclu de Git (.gitignore). Celui-ci n'est qu'un exemple fictif.
+###############################################################################
 
-classe      = "sio2026"
+# Tag posé sur toutes les VM de la classe.
+classe = "sio2026"
+
+# Les pools existants s'appellent <pool_prefix><login>, ex. SIO2026_dupont.alice.
 pool_prefix = "SIO2026_"
 
-# login = nom du pool sans le préfixe ; etu = numéro des bridges ETUxx.
-# EXEMPLE FICTIF : la vraie liste va dans classes/sio2026.tfvars (non versionné).
-# !!! Vérifie la correspondance avec les commentaires ETUxx de tes bridges,
-# !!! ou régénère-la avec scripts/genere-etudiants.sh.
-# Le numéro etu ne doit plus changer une fois les VMs créées.
+# --- Étudiants ------------------------------------------------------------------
+# login = nom du pool sans le préfixe ; etu = numéro ETUxx de ses bridges.
+#
+# Pour générer la vraie liste depuis Proxmox (sur un nœud) :
+#   EXCLURE="login.a.ignorer" bash scripts/genere-etudiants.sh SIO2026_ siohyp2
+#
+# ⚠ Le numéro etu d'un étudiant ne doit plus changer une fois ses VM créées :
+#   Terraform les détruirait pour les recréer sur d'autres bridges.
 etudiants = {
-  "dupont.alice"   = { etu = 1 }
-  "martin.bilal"   = { etu = 2 }
-  "durand.chloe"   = { etu = 3 }
-  # ... une ligne par étudiant, numérotée dans l'ordre des bridges ETUxx
+  "dupont.alice" = { etu = 1 }
+  "martin.bilal" = { etu = 2 }
+  "durand.chloe" = { etu = 3 }
+  # … une ligne par étudiant, numérotée dans l'ordre des bridges ETUxx
 }
 
-# Topologie par défaut (voir variables.tf) :
-#   SNS : out -> wan_bridge, in -> VLAN01, dmz1 -> VLAN02
-#   Client Windows -> VLAN01, Serveur Windows -> VLAN02
-# Pour la changer, décommente et adapte :
+# --- Topologie ------------------------------------------------------------------
+# Par défaut (voir variables.tf) :
+#   SNS     : out → wan_bridge, in → VLAN01, dmz1 → VLAN02
+#   Client  : VLAN01        Serveur : VLAN02
+#
+# Pour la changer, décommenter et adapter. Garder bios = "ovmf" pour les
+# templates Windows (UEFI), sinon ils ne démarrent pas.
 # lab_vms = {
-#   sns = { index = 1, template = "sns",    nics = ["wan", "vlan01", "vlan02", "vlan03"], cores = 1, memory = 2048 }
-#   srv = { index = 2, template = "winsrv", nics = ["vlan02"], cores = 2, memory = 4096 }
-#   cli = { index = 3, template = "wincli", nics = ["vlan01"], cores = 2, memory = 4096 }
+#   sns  = { index = 1, template = "sns",    nics = ["wan", "vlan01", "vlan02", "vlan03"], cores = 1, memory = 2048 }
+#   srv  = { index = 2, template = "winsrv", nics = ["vlan02"], cores = 2, memory = 4096, bios = "ovmf" }
+#   cli  = { index = 3, template = "wincli", nics = ["vlan01"], cores = 2, memory = 4096, bios = "ovmf" }
+#   kali = { index = 4, template = "kali",   nics = ["vlan03"], cores = 2, memory = 4096 }   # template à déclarer
 # }
 
+# Les VM sont créées éteintes ; les étudiants les démarrent eux-mêmes.
 start_vms = false

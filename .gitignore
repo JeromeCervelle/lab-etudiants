@@ -1,8 +1,22 @@
+# --- Terraform : fichiers locaux, à ne jamais versionner -----------------------
+# Providers téléchargés par `terraform init` (régénérés à chaque init).
 .terraform/
+# État de l'infrastructure : contient les identifiants des VM et, en clair,
+# les valeurs « sensitive » (token). Un état par workspace dans terraform.tfstate.d/.
 *.tfstate
 *.tfstate.*
 terraform.tfstate.d/
+# Plans enregistrés : contiennent les logins des étudiants.
+*.tfplan
+plan*.txt
+
+# --- Secrets ----------------------------------------------------------------------
 terraform.tfvars
+secret.txt
+
+# --- Données personnelles : listes réelles d'étudiants ----------------------------
 classes/*.tfvars
 !classes/*.tfvars.example
-secret.txt
+
+# Le fichier .terraform.lock.hcl, lui, DOIT être versionné : il fige la
+# version du provider pour tous les postes.
