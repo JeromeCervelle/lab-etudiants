@@ -175,14 +175,9 @@ client Windows, derrière l'interface *in* du SNS) :
 | `mint` | 280 `linuxmintmodele` | 10014 | `<login>-mint` |
 | `kali` | 283 `kalilinuxmodele` | 10015 | `<login>-kali` |
 
-À faire avant le premier `apply` : vérifier le nœud, le firmware et le
-contrôleur de disque des deux templates, et les reporter dans
-`terraform.tfvars` (`templates`) et dans `lab_vms` si besoin :
-
-```bash
-for id in 280 283; do f=$(ls /etc/pve/nodes/*/qemu-server/$id.conf); echo "== $f"
-  grep -E '^(name|template|bios|machine|scsihw|efidisk0|tpmstate0|scsi|virtio|sata|ide)[0-9]*:' "$f"; done
-```
+Templates vérifiés (24/10/2026) : tous deux sur **siohyp2**, BIOS classique
+(seabios), contrôleur `virtio-scsi-single`, disque qcow2 de 80 Go sur
+NFS-NAS : clones liés possibles, aucun réglage particulier dans `lab_vms`.
 
 Sur une classe déjà déployée, le `plan` ne propose que les ajouts
 (`76 to add` pour 38 étudiants) : les VM existantes ne sont pas modifiées.
