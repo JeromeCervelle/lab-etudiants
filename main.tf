@@ -79,4 +79,41 @@ module "lab" {
   bridges_par_etudiant = var.bridges_par_etudiant # 5 bridges par étudiant
   wan_bridge           = var.wan_bridge           # bridge de la patte « out » du SNS
   wan_vlan_id          = var.wan_vlan_id          # tag VLAN éventuel sur le WAN
+
+  # --- Challenge CTF (facultatif) ----------------------------------------------
+  ctf        = var.ctf
+  ctf_numero = coalesce(each.value.ctf, var.ctf.numero) # CTF propre à l'étudiant, sinon celui de la classe
+  ctf_outils = try(terraform_data.ctf_outils[0].id, "")
+}
+
+
+# -----------------------------------------------------------------------------
+# Challenge CTF : dépôt de l'installateur sur le nœud (une seule fois)
+# -----------------------------------------------------------------------------
+# Copie scripts/ctf_installer.sh dans ctf.node_dir sur le nœud, et vérifie
+# que ctf_creer.sh y est présent. Recopié automatiquement si le script
+# change (empreinte md5). Les installations des étudiants attendent cette
+# étape (variable ctf_outils du module).
+resource "terraform_data" "ctf_outils" {
+  count            = var.ctf.enabled ? 1 : 0
+  triggers_replace = [filemd5("${path.module}/scripts/ctf_installer.sh")]
+
+  connection {
+    type        = "ssh"
+    host        = var.ctf.ssh_host
+    user        = var.ctf.ssh_user
+    private_key = file(pathexpand(var.ctf.ssh_private_key))
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir -p ${var.ctf.node_dir}",
+      "test -f ${var.ctf.node_dir}/ctf_creer.sh || { echo 'ctf_creer.sh absent de ${var.ctf.node_dir} (voir docs/CTF.md)' >&2; exit 1; }",
+    ]
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/scripts/ctf_installer.sh"
+    destination = "${var.ctf.node_dir}/ctf_installer.sh"
+  }
 }

@@ -28,6 +28,7 @@ output "labs" {
       pool    = data.proxmox_virtual_environment_pool.etudiant[login].pool_id
       bridges = lab.bridges # calculés dans le module
       vms     = lab.vm_ids  # VMID réellement attribués par Proxmox
+      ctf     = lab.ctf     # conteneur CTF { vmid, nom, ip }, ou null
     }
   }
 }

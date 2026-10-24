@@ -6,6 +6,9 @@
 *.tfstate
 *.tfstate.*
 terraform.tfstate.d/
+# Fiches CTF rapatriées (flags des étudiants), si copiées depuis le nœud
+ctf_resultats/
+
 # Plans enregistrés : contiennent les logins des étudiants.
 *.tfplan
 plan*.txt

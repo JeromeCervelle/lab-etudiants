@@ -258,9 +258,12 @@ variable "pool_prefix" {
 # ⚠ Une fois les VM créées, ne plus changer le numéro d'un étudiant :
 #   Terraform détruirait ses VM pour les recréer sur d'autres bridges.
 variable "etudiants" {
-  description = "login => { etu = numéro ETUxx de ses bridges }"
+  description = "login => { etu = numéro ETUxx de ses bridges, ctf = CTF propre à l'étudiant (facultatif) }"
   type = map(object({
     etu = number
+    # Facultatif : CTF (1 à 5) de cet étudiant, s'il diffère de var.ctf.numero.
+    # Changer ce numéro remplace son conteneur CTF par le CTF demandé.
+    ctf = optional(number)
   }))
 
   # Deux étudiants sur le même numéro partageraient les mêmes VLAN et les
@@ -274,5 +277,81 @@ variable "etudiants" {
   validation {
     condition     = alltrue([for e in values(var.etudiants) : e.etu >= 1])
     error_message = "Les numéros etu commencent à 1."
+  }
+
+  validation {
+    condition     = alltrue([for e in values(var.etudiants) : e.ctf == null ? true : (e.ctf >= 1 && e.ctf <= 5)])
+    error_message = "Le champ ctf d'un étudiant vaut 1 à 5."
+  }
+}
+
+
+# =============================================================================
+# 6. CHALLENGE CTF (facultatif)                         (terraform.tfvars)
+# =============================================================================
+#
+# Ajoute à chaque étudiant un conteneur LXC du challenge « 5 CTF pour
+# Proxmox VE » (Damien SCONTRINO, CC BY-NC-SA 4.0), dans son pool et sur son
+# VLAN. Détails : modules/student_lab/ctf.tf et docs/CTF.md.
+#
+# Prérequis sur le nœud ssh_host (= node_name) :
+#   - ctf_creer.sh déposé dans node_dir (le script d'origine, non modifié) ;
+#   - le modèle Debian 12 téléchargé (pveam) sur un stockage « vztmpl » ;
+#   - la clé SSH publique de la VM Terraform dans ~root/.ssh/authorized_keys.
+# =============================================================================
+
+variable "ctf" {
+  description = "Conteneur CTF de chaque étudiant (désactivé par défaut)"
+  type = object({
+    enabled = optional(bool, false)
+    numero  = optional(number, 1) # CTF par défaut de la classe (1 à 5)
+    index   = optional(number, 9) # VMID = vmid_base + etu × 10 + index → ETU07 = 10079
+
+    # Conteneur (mêmes valeurs que ctf_creer.sh)
+    template  = optional(string)            # "<stockage>:vztmpl/debian-12-standard_….tar.zst"
+    datastore = optional(string, "NFS-NAS") # stockage acceptant « rootdir »
+    disk_go   = optional(number, 8)
+    memory    = optional(number, 512)
+    cores     = optional(number, 1)
+
+    # Réseau PENDANT l'installation : il faut Internet (paquets Debian)
+    install_bridge    = optional(string)         # null = wan_bridge
+    install_ip        = optional(string, "dhcp") # ou modèle "10.187.35.%d/24"
+    install_ip_offset = optional(number, 150)    # adresse = offset + etu
+    install_gateway   = optional(string)         # obligatoire si install_ip n'est pas dhcp
+    install_dns       = optional(string)         # null = DNS du nœud
+
+    # Réseau FINAL : VLAN de l'étudiant (même adresse pour tous, réseaux isolés)
+    vlan    = optional(string, "vlan01") # vlan01 = LAN du client Windows
+    ip      = optional(string, "192.168.56.50/24")
+    gateway = optional(string, "192.168.56.254") # le SNS de l'étudiant
+    dns     = optional(string)
+
+    # Accès SSH au nœud pour lancer pct (installation)
+    ssh_host        = optional(string) # adresse interne de node_name
+    ssh_user        = optional(string, "root")
+    ssh_private_key = optional(string, "~/.ssh/id_ed25519")
+    node_dir        = optional(string, "/root/ctf") # contient ctf_creer.sh
+  })
+  default = {}
+
+  validation {
+    condition     = var.ctf.numero >= 1 && var.ctf.numero <= 5
+    error_message = "ctf.numero vaut 1 à 5."
+  }
+
+  validation {
+    condition     = !var.ctf.enabled || (var.ctf.template != null && var.ctf.ssh_host != null)
+    error_message = "Avec ctf.enabled = true, renseigner ctf.template et ctf.ssh_host."
+  }
+
+  validation {
+    condition     = can(regex("^vlan[0-9]{2}$", var.ctf.vlan))
+    error_message = "ctf.vlan doit valoir vlanNN (ex. vlan01)."
+  }
+
+  validation {
+    condition     = var.ctf.install_ip == "dhcp" || (strcontains(var.ctf.install_ip, "%d") && var.ctf.install_gateway != null)
+    error_message = "ctf.install_ip vaut \"dhcp\", ou un modèle contenant %d (ex. 10.187.35.%d/24) avec install_gateway."
   }
 }

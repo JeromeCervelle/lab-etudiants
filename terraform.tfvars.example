@@ -46,3 +46,20 @@ bridges_par_etudiant = 5
 # Interface « out » des SNS
 wan_bridge  = "vmbr134" # BTSSIO BYOD Wifi (bond0.134), accès Internet du lycée
 wan_vlan_id = null
+
+# --- Challenge CTF (facultatif) — voir docs/CTF.md --------------------------------
+# Un conteneur LXC par étudiant (challenge « 5 CTF » de D. SCONTRINO), dans son
+# pool, installé sur le WAN puis basculé sur son VLAN01 en 192.168.56.50.
+# ctf = {
+#   enabled  = true
+#   numero   = 1                                    # CTF de la classe (1 à 5)
+#   template = "templates-OCI:vztmpl/debian-12-standard_12.12-1_amd64.tar.zst"
+#   datastore = "NFS-NAS"                           # stockage acceptant « rootdir »
+#   ssh_host = "10.187.36.12"                       # adresse interne de siohyp2
+#   ssh_private_key = "~/.ssh/id_ed25519"
+#
+#   # Réseau d'installation : DHCP sur le WAN, ou adresses fixes :
+#   # install_ip      = "10.187.35.%d/24"           # → .151 à .188 (150 + ETU)
+#   # install_gateway = "10.187.35.254"
+#   # install_dns     = "10.187.35.254"
+# }

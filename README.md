@@ -163,3 +163,9 @@ Topologie par défaut : 10 Go de RAM par étudiant, soit **~390 Go pour 39 étud
 
 - Terraform déploie des VMs vierges : IPs, configuration du SNS et de l'AD restent au programme du TP.
 - Code non exécuté sur ton Proxmox : `terraform validate` puis un `plan` à un étudiant d'abord.
+
+## Challenge CTF (branche `ctf-challenge`)
+
+Un conteneur CTF par étudiant, dans son pool et sur son VLAN, à partir du
+challenge « 5 CTF pour Proxmox VE » de Damien SCONTRINO (CC BY-NC-SA 4.0).
+Désactivé par défaut. Mode d'emploi : [docs/CTF.md](docs/CTF.md).

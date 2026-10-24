@@ -108,3 +108,23 @@ variable "wan_vlan_id" {
   type        = number
   default     = null
 }
+
+# --- Challenge CTF (facultatif, voir ctf.tf) ---------------------------------
+
+# Réglages du conteneur CTF : objet var.ctf de la racine, valeurs par défaut
+# déjà appliquées (voir le variables.tf racine pour le détail des champs).
+variable "ctf" {
+  description = "Réglages du conteneur CTF (objet var.ctf de la racine)"
+  type        = any
+}
+
+variable "ctf_numero" {
+  description = "Numéro du CTF (1 à 5) installé pour cet étudiant"
+  type        = number
+}
+
+variable "ctf_outils" {
+  description = "Identifiant du dépôt de ctf_installer.sh sur le nœud : sert à ordonner les créations"
+  type        = string
+  default     = ""
+}
