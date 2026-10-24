@@ -30,6 +30,8 @@ templates = {
   sns    = { vm_id = 404, node = "siohyp1" } # Modele-SNS-4.33  (NFS-NAS, qcow2, BIOS)
   winsrv = { vm_id = 267, node = "siohyp2" } # SRV2025MODELE    (NFS-NAS, qcow2, UEFI)
   wincli = { vm_id = 270, node = "siohyp2" } # WIN11CLIENT      (NFS-NAS, qcow2, UEFI + TPM)
+  mint   = { vm_id = 280, node = "siohyp2" } # linuxmintmodele  (nœud à vérifier)
+  kali   = { vm_id = 283, node = "siohyp2" } # kalilinuxmodele  (nœud à vérifier)
 }
 
 # --- Clonage --------------------------------------------------------------------

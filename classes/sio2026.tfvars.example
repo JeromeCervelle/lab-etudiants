@@ -40,15 +40,16 @@ etudiants = {
 # --- Topologie ------------------------------------------------------------------
 # Par défaut (voir variables.tf) :
 #   SNS     : out → wan_bridge, in → VLAN01, dmz1 → VLAN02
-#   Client  : VLAN01        Serveur : VLAN02
+#   Client Windows, Linux Mint, Kali : VLAN01        Serveur : VLAN02
 #
 # Pour la changer, décommenter et adapter. Garder bios = "ovmf" pour les
 # templates Windows (UEFI), sinon ils ne démarrent pas.
 # lab_vms = {
-#   sns  = { index = 1, template = "sns",    nics = ["wan", "vlan01", "vlan02", "vlan03"], cores = 1, memory = 2048 }
+#   sns  = { index = 1, template = "sns",    nics = ["wan", "vlan01", "vlan02"], cores = 1, memory = 2048 }
 #   srv  = { index = 2, template = "winsrv", nics = ["vlan02"], cores = 2, memory = 4096, bios = "ovmf" }
 #   cli  = { index = 3, template = "wincli", nics = ["vlan01"], cores = 2, memory = 4096, bios = "ovmf" }
-#   kali = { index = 4, template = "kali",   nics = ["vlan03"], cores = 2, memory = 4096 }   # template à déclarer
+#   mint = { index = 4, template = "mint",   nics = ["vlan01"], cores = 2, memory = 2048 }
+#   kali = { index = 5, template = "kali",   nics = ["vlan01"], cores = 2, memory = 4096 }
 # }
 
 # Les VM sont créées éteintes ; les étudiants les démarrent eux-mêmes.

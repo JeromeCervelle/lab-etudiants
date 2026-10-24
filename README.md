@@ -163,3 +163,27 @@ Topologie par défaut : 10 Go de RAM par étudiant, soit **~390 Go pour 39 étud
 
 - Terraform déploie des VMs vierges : IPs, configuration du SNS et de l'AD restent au programme du TP.
 - Code non exécuté sur ton Proxmox : `terraform validate` puis un `plan` à un étudiant d'abord.
+
+## Machines Linux (branche `machines-linux`)
+
+Chaque étudiant reçoit, en plus du SNS, du serveur et du client Windows,
+deux VM Linux branchées sur son **VLAN01** (192.168.56.0/24, le LAN du
+client Windows, derrière l'interface *in* du SNS) :
+
+| Rôle | Template | VMID (ETU01) | Nom |
+|---|---|---|---|
+| `mint` | 280 `linuxmintmodele` | 10014 | `<login>-mint` |
+| `kali` | 283 `kalilinuxmodele` | 10015 | `<login>-kali` |
+
+À faire avant le premier `apply` : vérifier le nœud, le firmware et le
+contrôleur de disque des deux templates, et les reporter dans
+`terraform.tfvars` (`templates`) et dans `lab_vms` si besoin :
+
+```bash
+for id in 280 283; do f=$(ls /etc/pve/nodes/*/qemu-server/$id.conf); echo "== $f"
+  grep -E '^(name|template|bios|machine|scsihw|efidisk0|tpmstate0|scsi|virtio|sata|ide)[0-9]*:' "$f"; done
+```
+
+Sur une classe déjà déployée, le `plan` ne propose que les ajouts
+(`76 to add` pour 38 étudiants) : les VM existantes ne sont pas modifiées.
+Mémoire : +6 Go par étudiant si tout est allumé.
