@@ -164,6 +164,41 @@ Topologie par défaut : 10 Go de RAM par étudiant, soit **~390 Go pour 39 étud
 - Terraform déploie des VMs vierges : IPs, configuration du SNS et de l'AD restent au programme du TP.
 - Code non exécuté sur ton Proxmox : `terraform validate` puis un `plan` à un étudiant d'abord.
 
+## Machines Linux
+
+Chaque étudiant reçoit, en plus du SNS, du serveur et du client Windows,
+deux VM Linux branchées sur son **VLAN01** (192.168.56.0/24, le LAN du
+client Windows, derrière l'interface *in* du SNS) :
+
+| Rôle | Template | VMID (ETU01) | Nom |
+|---|---|---|---|
+| `mint` | 280 `linuxmintmodele` | 10014 | `<login>-mint` |
+| `kali` | 283 `kalilinuxmodele` | 10015 | `<login>-kali` |
+
+Templates vérifiés (24/10/2026) : tous deux sur **siohyp2**, BIOS classique
+(seabios), contrôleur `virtio-scsi-single`, disque qcow2 de 80 Go sur
+NFS-NAS : clones liés possibles, aucun réglage particulier dans `lab_vms`.
+
+Sur une classe déjà déployée, le `plan` ne propose que les ajouts
+(`76 to add` pour 38 étudiants) : les VM existantes ne sont pas modifiées.
+Mémoire : +6 Go par étudiant si tout est allumé.
+
+## Serveur Mutillidae
+
+Chaque étudiant reçoit une sixième VM, clone du template 286
+`srvmutillidaemodele` (Linux Mint + Docker + OWASP Mutillidae II) :
+
+| Rôle | Template | VLAN | VMID (ETU01) | Nom |
+|---|---|---|---|---|
+| `mutillidae` | 286 `srvmutillidaemodele` | **VLAN02** (DMZ, 172.16.10.0/24), avec le serveur Windows | 10016 | `<login>-mutillidae` |
+
+Application **volontairement vulnérable** : elle n'est joignable que depuis
+le réseau de l'étudiant, derrière son SNS. Depuis le LAN (client, Kali),
+l'étudiant doit ouvrir les flux HTTP/HTTPS vers elle sur son firewall.
+
+Sur une classe déployée, le `plan` ne propose que les ajouts (`39 to add`
+pour 39 labs). Mémoire : +4 Go par étudiant si tout est allumé.
+
 ## Challenge CTF (branche `ctf-challenge`)
 
 Un conteneur CTF par étudiant, dans son pool et sur son VLAN, à partir du

@@ -17,6 +17,10 @@ variables {
     sns    = { vm_id = 404, node = "siohyp2" }
     winsrv = { vm_id = 267, node = "siohyp2" }
     wincli = { vm_id = 270, node = "siohyp2" }
+    mint   = { vm_id = 280, node = "siohyp2" }
+    kali   = { vm_id = 283, node = "siohyp2" }
+
+    mutillidae = { vm_id = 286, node = "siohyp2" }
   }
   etudiants = {
     "dupont.alice" = { etu = 1 }
@@ -28,7 +32,7 @@ variables {
 run "sans_ctf" {
   command = plan
   assert {
-    condition     = output.labs["dupont.alice"].ctf == null && length(output.labs["dupont.alice"].vms) == 3
+    condition     = output.labs["dupont.alice"].ctf == null && length(output.labs["dupont.alice"].vms) == 6
     error_message = "Sans ctf.enabled, aucun conteneur CTF ne doit être prévu."
   }
 }

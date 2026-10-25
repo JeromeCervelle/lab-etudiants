@@ -177,23 +177,45 @@ variable "lab_vms" {
     scsi_hardware = optional(string, "virtio-scsi-single") # valeur des 3 templates actuels
   }))
 
-  # Topologie par défaut du TP « contrôleur de domaine derrière un SNS » :
+  # Topologie par défaut :
   #
-  #              WAN (vmbr134)
-  #                   │ out
-  #               ┌───┴───┐
-  #               │  SNS  │  template 404, BIOS classique
-  #               └─┬───┬─┘
-  #             in  │   │ dmz1
-  #     VLAN01 ─────┘   └───── VLAN02
-  #   192.168.56.0/24       172.16.10.0/24
-  #        │                     │
-  #   client Win11          serveur 2025
-  #   (270, UEFI)           (267, UEFI)
+  #                     WAN (vmbr134)
+  #                          │ out
+  #                      ┌───┴───┐
+  #                      │  SNS  │  template 404, BIOS classique
+  #                      └─┬───┬─┘
+  #                    in  │   │ dmz1
+  #            VLAN01 ─────┘   └───── VLAN02
+  #          192.168.56.0/24       172.16.10.0/24
+  #      ┌──────┼──────────┐        ┌────┴──────┐
+  #  client   Linux      Kali   serveur 2025  Mutillidae
+  #  Win11    Mint       Linux  (267, UEFI)   (286)
+  #  (270)    (280)      (283)
+  #
+  # VMID = vmid_base + etu × 10 + index :
+  #   sns 1, srv 2, cli 3, mint 4, kali 5, mutillidae 6  → ETU01 = 10011 à 10016
+  #   (l'index 9 est réservé au conteneur CTF de la branche ctf-challenge)
   default = {
-    sns = { index = 1, template = "sns", nics = ["wan", "vlan01", "vlan02"], cores = 1, memory = 2048 }
-    srv = { index = 2, template = "winsrv", nics = ["vlan02"], cores = 2, memory = 4096, bios = "ovmf" }
-    cli = { index = 3, template = "wincli", nics = ["vlan01"], cores = 2, memory = 4096, bios = "ovmf" }
+    sns  = { index = 1, template = "sns", nics = ["wan", "vlan01", "vlan02"], cores = 1, memory = 2048 }
+    srv  = { index = 2, template = "winsrv", nics = ["vlan02"], cores = 2, memory = 4096, bios = "ovmf" }
+    cli  = { index = 3, template = "wincli", nics = ["vlan01"], cores = 2, memory = 4096, bios = "ovmf" }
+    mint = { index = 4, template = "mint", nics = ["vlan01"], cores = 2, memory = 2048 }
+    kali = { index = 5, template = "kali", nics = ["vlan01"], cores = 2, memory = 4096 }
+
+    # Serveur web volontairement vulnérable (OWASP Mutillidae II sous Docker),
+    # dans la DMZ avec le serveur Windows : cible des TP d'attaque web.
+    mutillidae = { index = 6, template = "mutillidae", nics = ["vlan02"], cores = 2, memory = 4096 }
+  }
+
+  # Deux VM avec le même index auraient le même VMID.
+  validation {
+    condition     = length(distinct([for vm in values(var.lab_vms) : vm.index])) == length(var.lab_vms)
+    error_message = "Deux VM de lab_vms ont le même index (donc le même VMID)."
+  }
+
+  validation {
+    condition     = alltrue([for vm in values(var.lab_vms) : vm.index >= 1 && vm.index <= 9])
+    error_message = "Les index de lab_vms vont de 1 à 9."
   }
 
   # Refuse toute carte qui ne s'écrit pas "wan" ou "vlanNN" (ex. une faute de

@@ -41,6 +41,16 @@ data "proxmox_virtual_environment_pool" "etudiant" {
 
   # each.key = le login, ex. "dupont.alice" → pool "SIO2026_dupont.alice"
   pool_id = "${var.pool_prefix}${each.key}"
+
+  lifecycle {
+    # Contrôle de cohérence, avant toute création : chaque VM de lab_vms doit
+    # utiliser un template déclaré dans var.templates (ex. « mint » ou
+    # « kali » oublié dans terraform.tfvars).
+    precondition {
+      condition     = alltrue([for vm in values(var.lab_vms) : contains(keys(var.templates), vm.template)])
+      error_message = "lab_vms utilise un template absent de templates (terraform.tfvars) : ${join(", ", setsubtract([for vm in values(var.lab_vms) : vm.template], keys(var.templates)))}."
+    }
+  }
 }
 
 
