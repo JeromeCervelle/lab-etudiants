@@ -18,6 +18,8 @@ variables {
     wincli = { vm_id = 270, node = "siohyp2" }
     mint   = { vm_id = 280, node = "siohyp2" }
     kali   = { vm_id = 283, node = "siohyp2" }
+
+    mutillidae = { vm_id = 286, node = "siohyp2" }
   }
   etudiants = {
     "dupont.alice" = { etu = 1 }
@@ -25,18 +27,22 @@ variables {
   }
 }
 
-# 5 VM par étudiant, VMID 10NN1 à 10NN5, bridges calculés.
-run "cinq_vm_par_etudiant" {
+# 6 VM par étudiant, VMID 10NN1 à 10NN6, bridges calculés.
+run "six_vm_par_etudiant" {
   command = plan
   assert {
     condition = output.labs["dupont.alice"].vms == {
-      sns = 10011, srv = 10012, cli = 10013, mint = 10014, kali = 10015
+      sns = 10011, srv = 10012, cli = 10013, mint = 10014, kali = 10015, mutillidae = 10016
     }
-    error_message = "ETU01 : VMID 10011 à 10015 attendus (sns, srv, cli, mint, kali)."
+    error_message = "ETU01 : VMID 10011 à 10016 attendus (sns, srv, cli, mint, kali, mutillidae)."
   }
   assert {
     condition     = output.labs["martin.bilal"].vms.kali == 10385 && output.labs["martin.bilal"].bridges.vlan01 == "vmbr586"
     error_message = "ETU38 : Kali en 10385, VLAN01 sur vmbr586."
+  }
+  assert {
+    condition     = output.labs["martin.bilal"].vms.mutillidae == 10386 && output.labs["martin.bilal"].bridges.vlan02 == "vmbr587"
+    error_message = "ETU38 : Mutillidae en 10386, sur le VLAN02 (vmbr587)."
   }
 }
 

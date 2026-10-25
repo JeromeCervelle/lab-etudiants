@@ -187,13 +187,13 @@ variable "lab_vms" {
   #                    in  │   │ dmz1
   #            VLAN01 ─────┘   └───── VLAN02
   #          192.168.56.0/24       172.16.10.0/24
-  #      ┌──────┼──────────┐             │
-  #  client   Linux      Kali        serveur 2025
-  #  Win11    Mint       Linux       (267, UEFI)
+  #      ┌──────┼──────────┐        ┌────┴──────┐
+  #  client   Linux      Kali   serveur 2025  Mutillidae
+  #  Win11    Mint       Linux  (267, UEFI)   (286)
   #  (270)    (280)      (283)
   #
   # VMID = vmid_base + etu × 10 + index :
-  #   sns 1, srv 2, cli 3, mint 4, kali 5  → ETU01 = 10011 à 10015
+  #   sns 1, srv 2, cli 3, mint 4, kali 5, mutillidae 6  → ETU01 = 10011 à 10016
   #   (l'index 9 est réservé au conteneur CTF de la branche ctf-challenge)
   default = {
     sns  = { index = 1, template = "sns", nics = ["wan", "vlan01", "vlan02"], cores = 1, memory = 2048 }
@@ -201,6 +201,10 @@ variable "lab_vms" {
     cli  = { index = 3, template = "wincli", nics = ["vlan01"], cores = 2, memory = 4096, bios = "ovmf" }
     mint = { index = 4, template = "mint", nics = ["vlan01"], cores = 2, memory = 2048 }
     kali = { index = 5, template = "kali", nics = ["vlan01"], cores = 2, memory = 4096 }
+
+    # Serveur web volontairement vulnérable (OWASP Mutillidae II sous Docker),
+    # dans la DMZ avec le serveur Windows : cible des TP d'attaque web.
+    mutillidae = { index = 6, template = "mutillidae", nics = ["vlan02"], cores = 2, memory = 4096 }
   }
 
   # Deux VM avec le même index auraient le même VMID.

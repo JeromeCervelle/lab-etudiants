@@ -182,3 +182,19 @@ NFS-NAS : clones liés possibles, aucun réglage particulier dans `lab_vms`.
 Sur une classe déjà déployée, le `plan` ne propose que les ajouts
 (`76 to add` pour 38 étudiants) : les VM existantes ne sont pas modifiées.
 Mémoire : +6 Go par étudiant si tout est allumé.
+
+## Serveur Mutillidae (branche `serveur-mutillidae`)
+
+Chaque étudiant reçoit une sixième VM, clone du template 286
+`srvmutillidaemodele` (Linux Mint + Docker + OWASP Mutillidae II) :
+
+| Rôle | Template | VLAN | VMID (ETU01) | Nom |
+|---|---|---|---|---|
+| `mutillidae` | 286 `srvmutillidaemodele` | **VLAN02** (DMZ, 172.16.10.0/24), avec le serveur Windows | 10016 | `<login>-mutillidae` |
+
+Application **volontairement vulnérable** : elle n'est joignable que depuis
+le réseau de l'étudiant, derrière son SNS. Depuis le LAN (client, Kali),
+l'étudiant doit ouvrir les flux HTTP/HTTPS vers elle sur son firewall.
+
+Sur une classe déployée, le `plan` ne propose que les ajouts (`39 to add`
+pour 39 labs). Mémoire : +4 Go par étudiant si tout est allumé.
