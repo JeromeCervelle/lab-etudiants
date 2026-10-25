@@ -24,6 +24,12 @@
 # Variables d'environnement facultatives :
 #   CTF_CREER     chemin de ctf_creer.sh     (défaut : dossier de ce script)
 #   CTF_RESULTATS dossier des fiches         (défaut : <dossier>/ctf_resultats)
+#   CTF_ETU_MAX   plus grand numéro accepté  (défaut : 40, transmis par Terraform)
+#
+# Adaptation au lab-etudiants : les scripts du CTF3 et du CTF5 refusent les
+# numéros au-delà de 38 (contrôle de saisie seulement : leurs flags sont
+# calculés par formule et valent pour tout numéro). La COPIE extraite est
+# corrigée pour accepter jusqu'à CTF_ETU_MAX ; ctf_creer.sh reste intact.
 ###############################################################################
 set -uo pipefail
 export LC_ALL=C.UTF-8
@@ -58,6 +64,13 @@ trap 'rm -f "$TMP"' EXIT
 awk -v n="$N" 'index($0, "CTF_B64[" n "]=\047") == 1 { f = 1; next } f && /^\047$/ { f = 0 } f' "$CTF_CREER" \
     | base64 -d > "$TMP" 2>/dev/null
 [[ -s "$TMP" ]] || die "script du $NOM illisible dans $CTF_CREER."
+
+# Numéros au-delà de 38 : on relève la limite dans la copie (voir l'en-tête).
+ETU_MAX="${CTF_ETU_MAX:-40}"
+[[ "$ETU_MAX" =~ ^[0-9]+$ ]] || die "CTF_ETU_MAX invalide : $ETU_MAX."
+(( ETU >= 1 && ETU <= ETU_MAX )) || die "numéro d'étudiant $ETU hors limites (1 à $ETU_MAX)."
+sed -i -E "s/NUM > 38\b/NUM > ${ETU_MAX}/g; s/entre 1 et 38/entre 1 et ${ETU_MAX}/g; s/\(1 à 38\)/(1 à ${ETU_MAX})/g" "$TMP"
+if grep -qE 'NUM > 38\b' "$TMP"; then die "limite à 38 non relevée dans le script du $NOM (version différente ?)."; fi
 log "installation du $NOM (étudiant $ETU)"
 
 # --- 2. Démarrage et accès Internet ------------------------------------------

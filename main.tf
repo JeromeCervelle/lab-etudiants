@@ -50,6 +50,14 @@ data "proxmox_virtual_environment_pool" "etudiant" {
       condition     = alltrue([for vm in values(var.lab_vms) : contains(keys(var.templates), vm.template)])
       error_message = "lab_vms utilise un template absent de templates (terraform.tfvars) : ${join(", ", setsubtract([for vm in values(var.lab_vms) : vm.template], keys(var.templates)))}."
     }
+
+    # Challenge CTF : les scripts d'installation n'acceptent qu'un numéro
+    # d'étudiant de 1 à ctf.etu_max (40). Erreur au plan plutôt qu'en
+    # pleine installation.
+    precondition {
+      condition     = !var.ctf.enabled || alltrue([for e in values(var.etudiants) : e.etu <= var.ctf.etu_max])
+      error_message = "Challenge CTF : numéro ETU supérieur à ctf.etu_max (${var.ctf.etu_max}) pour : ${join(", ", [for login, e in var.etudiants : login if e.etu > var.ctf.etu_max])}."
+    }
   }
 }
 

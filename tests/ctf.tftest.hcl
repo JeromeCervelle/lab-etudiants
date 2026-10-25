@@ -78,3 +78,32 @@ run "modele_obligatoire" {
   }
   expect_failures = [var.ctf]
 }
+
+# ETU39 et ETU40 sont acceptés (limite relevée à 40), ETU41 est refusé au plan.
+run "etu_40_accepte" {
+  command = plan
+  variables {
+    ctf       = { enabled = true, template = "templates-OCI:vztmpl/d.tar.zst", ssh_host = "h" }
+    etudiants = { "prof" = { etu = 40 } }
+  }
+  assert {
+    condition     = output.labs["prof"].ctf.vmid == 10409
+    error_message = "ETU40 : conteneur 10409 attendu."
+  }
+}
+
+run "etu_41_refuse" {
+  command = plan
+  variables {
+    ctf       = { enabled = true, template = "templates-OCI:vztmpl/d.tar.zst", ssh_host = "h" }
+    etudiants = { "trop.loin" = { etu = 41 } }
+  }
+  expect_failures = [data.proxmox_virtual_environment_pool.etudiant]
+}
+
+run "etu_41_sans_ctf_accepte" {
+  command = plan
+  variables {
+    etudiants = { "trop.loin" = { etu = 41 } }
+  }
+}

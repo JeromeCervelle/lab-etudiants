@@ -13,6 +13,7 @@ Avec `ctf.enabled = true`, chaque étudiant reçoit, en plus de ses 3 VM, un
 | Rangement | aucun pool | **pool de l'étudiant** `SIO2026_<login>` |
 | Réseau | pont commun, `<préfixe>.1nn` | installé sur le WAN, puis **VLAN01 de l'étudiant**, `192.168.56.50` |
 | ID | `BASE + n` | `10000 + ETU × 10 + 9` (ETU07 → 10079) |
+| Numéros | 1 à 38 | **1 à 40** (`ctf.etu_max`) : limite relevée dans la copie des scripts CTF3 et CTF5 |
 | Nom | `CTFx-Etudiantnn` | identique |
 | Flags | selon le numéro d'étudiant | selon le **numéro ETU** : les corrigés du challenge restent valables |
 | Changer de CTF | progression automatique | l'enseignant change le numéro et lance `apply` |
@@ -130,7 +131,13 @@ installations sont ajoutés.
 - **Énoncés.** Remplacer `${TARGET_IP}` par `192.168.56.50` pour tous les
   étudiants (réseaux isolés).
 - **Corrigés.** Flags identiques au script d'origine pour un même numéro :
-  l'étudiant ETU07 a les flags de l'« étudiant 7 » des corrigés.
+  l'étudiant ETU07 a les flags de l'« étudiant 7 » des corrigés. Les corrigés
+  PDF s'arrêtent à 38 : pour ETU39 et ETU40, les flags sont dans
+  `/root/ctf/ctf_resultats/` (calculés par la même formule).
+- **Numéros 39 et 40.** Les scripts du CTF3 et du CTF5 refusent les numéros
+  supérieurs à 38. `ctf_installer.sh` relève cette limite à `ctf.etu_max`
+  (40) dans la copie qu'il installe, sans modifier `ctf_creer.sh`. Au-delà,
+  le `plan` s'arrête avec la liste des étudiants concernés.
 - **Droits du token.** Créer un conteneur avec `nesting` est autorisé au token
   `terraform@pve` pour un conteneur non privilégié ; à vérifier au premier essai.
 

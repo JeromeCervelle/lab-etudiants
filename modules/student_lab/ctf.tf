@@ -147,7 +147,7 @@ resource "terraform_data" "ctf_install" {
   provisioner "remote-exec" {
     inline = [
       join(" ", [
-        "bash ${var.ctf.node_dir}/ctf_installer.sh",
+        "CTF_ETU_MAX=${var.ctf.etu_max} bash ${var.ctf.node_dir}/ctf_installer.sh",
         proxmox_virtual_environment_container.ctf[0].vm_id,
         var.ctf_numero,
         var.etu,

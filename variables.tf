@@ -326,8 +326,9 @@ variable "ctf" {
   description = "Conteneur CTF de chaque étudiant (désactivé par défaut)"
   type = object({
     enabled = optional(bool, false)
-    numero  = optional(number, 1) # CTF par défaut de la classe (1 à 5)
-    index   = optional(number, 9) # VMID = vmid_base + etu × 10 + index → ETU07 = 10079
+    numero  = optional(number, 1)  # CTF par défaut de la classe (1 à 5)
+    index   = optional(number, 9)  # VMID = vmid_base + etu × 10 + index → ETU07 = 10079
+    etu_max = optional(number, 40) # plus grand numéro ETU accepté par les scripts CTF (adaptés, voir ctf_installer.sh)
 
     # Conteneur (mêmes valeurs que ctf_creer.sh)
     template  = optional(string)            # "<stockage>:vztmpl/debian-12-standard_….tar.zst"
@@ -360,6 +361,11 @@ variable "ctf" {
   validation {
     condition     = var.ctf.numero >= 1 && var.ctf.numero <= 5
     error_message = "ctf.numero vaut 1 à 5."
+  }
+
+  validation {
+    condition     = var.ctf.etu_max >= 1 && var.ctf.etu_max <= 99
+    error_message = "ctf.etu_max vaut 1 à 99."
   }
 
   validation {
