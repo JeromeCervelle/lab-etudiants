@@ -33,7 +33,7 @@ templates = {
   mint   = { vm_id = 280, node = "siohyp2" } # linuxmintmodele  (NFS-NAS, qcow2, BIOS)
   kali   = { vm_id = 283, node = "siohyp2" } # kalilinuxmodele  (NFS-NAS, qcow2, BIOS)
 
-  mutillidae = { vm_id = 286, node = "siohyp2" } # srvmutillidaemodele (nœud et BIOS à vérifier)
+  mutillidae = { vm_id = 286, node = "siohyp2" } # srvmutillidaemodele (NFS-NAS, qcow2, BIOS)
 }
 
 # --- Clonage --------------------------------------------------------------------
