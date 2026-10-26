@@ -37,7 +37,8 @@ terraform apply
             2. pct push + pct exec du script du CTF, avec le numéro ETU
             3. restreint les droits des flags
             4. rapatrie les fiches dans /root/ctf/ctf_resultats/CTFn/ (sur le nœud)
-            5. pct set : carte basculée sur le VLAN de l'étudiant, puis redémarrage
+            5. pct set : carte basculée sur le VLAN de l'étudiant, puis ARRÊT
+               (l'étudiant l'allume à la demande ; ctf.allume = true pour le laisser démarré)
 ```
 
 Pourquoi SSH ? `pct push` et `pct exec` (copier un fichier dans un conteneur,

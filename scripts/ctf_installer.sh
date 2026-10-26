@@ -15,7 +15,9 @@
 #      génère ses flags (les mêmes que dans les corrigés du challenge) ;
 #   4. restreint les droits des fichiers de flags ;
 #   5. rapatrie les fiches de l'étudiant (flags, identifiants) sur le nœud ;
-#   6. bascule le conteneur du WAN vers le VLAN de l'étudiant et le redémarre.
+#   6. bascule le conteneur du WAN vers le VLAN de l'étudiant et l'ARRÊTE :
+#      l'étudiant l'allume lui-même quand il en a besoin (CTF_ALLUMER=1 pour
+#      le laisser démarré).
 #
 # Usage :
 #   ctf_installer.sh CTID N_CTF ETU BRIDGE IP/MASQUE PASSERELLE|- DNS|-
@@ -25,6 +27,8 @@
 #   CTF_CREER     chemin de ctf_creer.sh     (défaut : dossier de ce script)
 #   CTF_RESULTATS dossier des fiches         (défaut : <dossier>/ctf_resultats)
 #   CTF_ETU_MAX   plus grand numéro accepté  (défaut : 40, transmis par Terraform)
+#   CTF_ALLUMER   1 = laisser le conteneur démarré après l'installation
+#                 (défaut : 0, arrêté ; transmis par Terraform)
 #
 # Adaptation au lab-etudiants, pour les numéros au-delà de 38 :
 #   - CTF3 et CTF5 refusent ces numéros (contrôle de saisie seulement : leurs
@@ -121,8 +125,15 @@ log "$fiches fiche(s) dans $RESULTATS/$NOM"
 # --- 6. Bascule sur le VLAN de l'étudiant -----------------------------------
 # Le conteneur quitte le WAN : il n'est plus joignable que depuis le réseau
 # de l'étudiant (et n'a plus Internet tant que le SNS n'est pas configuré).
+# La nouvelle carte est prise en compte au prochain démarrage.
 pct set "$CTID" --net0 "name=eth0,bridge=${BRIDGE},ip=${IP}${GW:+,gw=$GW},firewall=0" \
     || die "bascule réseau impossible."
 if [[ -n "$DNS" ]]; then pct set "$CTID" --nameserver "$DNS"; fi
-pct reboot "$CTID" || die "redémarrage impossible."
-log "basculé sur $BRIDGE ($IP) : prêt"
+if [[ "${CTF_ALLUMER:-0}" == "1" ]]; then
+    pct reboot "$CTID" || die "redémarrage impossible."
+    log "basculé sur $BRIDGE ($IP) : prêt, démarré"
+else
+    # Arrêt propre (60 s), puis arrêt forcé si le conteneur ne répond pas.
+    pct shutdown "$CTID" --timeout 60 2>/dev/null || pct stop "$CTID" || die "arrêt impossible."
+    log "basculé sur $BRIDGE ($IP) : prêt, arrêté (l'étudiant l'allume à la demande)"
+fi

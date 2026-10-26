@@ -112,7 +112,10 @@ resource "proxmox_virtual_environment_container" "ctf" {
     firewall = false
   }
 
-  started       = true # il doit tourner pour être installé
+  # Démarré à la création : il doit tourner pour être installé. L'installateur
+  # l'arrête ensuite (sauf ctf.allume = true) ; ignore_changes = [started]
+  # empêche Terraform de le rallumer aux plans suivants.
+  started       = true
   start_on_boot = false
 
   lifecycle {
@@ -147,7 +150,7 @@ resource "terraform_data" "ctf_install" {
   provisioner "remote-exec" {
     inline = [
       join(" ", [
-        "CTF_ETU_MAX=${var.ctf.etu_max} bash ${var.ctf.node_dir}/ctf_installer.sh",
+        "CTF_ETU_MAX=${var.ctf.etu_max} CTF_ALLUMER=${var.ctf.allume ? 1 : 0} bash ${var.ctf.node_dir}/ctf_installer.sh",
         proxmox_virtual_environment_container.ctf[0].vm_id,
         var.ctf_numero,
         var.etu,

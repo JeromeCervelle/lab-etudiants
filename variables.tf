@@ -326,9 +326,10 @@ variable "ctf" {
   description = "Conteneur CTF de chaque étudiant (désactivé par défaut)"
   type = object({
     enabled = optional(bool, false)
-    numero  = optional(number, 1)  # CTF par défaut de la classe (1 à 5)
-    index   = optional(number, 9)  # VMID = vmid_base + etu × 10 + index → ETU07 = 10079
-    etu_max = optional(number, 40) # plus grand numéro ETU accepté par les scripts CTF (adaptés, voir ctf_installer.sh)
+    numero  = optional(number, 1)   # CTF par défaut de la classe (1 à 5)
+    index   = optional(number, 9)   # VMID = vmid_base + etu × 10 + index → ETU07 = 10079
+    etu_max = optional(number, 40)  # plus grand numéro ETU accepté par les scripts CTF (adaptés, voir ctf_installer.sh)
+    allume  = optional(bool, false) # false = conteneur arrêté après l'installation (allumé à la demande par l'étudiant)
 
     # Conteneur (mêmes valeurs que ctf_creer.sh)
     template  = optional(string)            # "<stockage>:vztmpl/debian-12-standard_….tar.zst"
