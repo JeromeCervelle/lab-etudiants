@@ -26,10 +26,12 @@
 #   CTF_RESULTATS dossier des fiches         (défaut : <dossier>/ctf_resultats)
 #   CTF_ETU_MAX   plus grand numéro accepté  (défaut : 40, transmis par Terraform)
 #
-# Adaptation au lab-etudiants : les scripts du CTF3 et du CTF5 refusent les
-# numéros au-delà de 38 (contrôle de saisie seulement : leurs flags sont
-# calculés par formule et valent pour tout numéro). La COPIE extraite est
-# corrigée pour accepter jusqu'à CTF_ETU_MAX ; ctf_creer.sh reste intact.
+# Adaptation au lab-etudiants, pour les numéros au-delà de 38 :
+#   - CTF3 et CTF5 refusent ces numéros (contrôle de saisie seulement : leurs
+#     flags sont calculés par formule) → limite relevée à CTF_ETU_MAX ;
+#   - CTF1 prend deux mots de passe dans des listes de 38 mots → au-delà, on
+#     repart du début des listes (modulo).
+# Seule la COPIE extraite est modifiée ; ctf_creer.sh reste intact.
 ###############################################################################
 set -uo pipefail
 export LC_ALL=C.UTF-8
@@ -71,6 +73,13 @@ ETU_MAX="${CTF_ETU_MAX:-40}"
 (( ETU >= 1 && ETU <= ETU_MAX )) || die "numéro d'étudiant $ETU hors limites (1 à $ETU_MAX)."
 sed -i -E "s/NUM > 38\b/NUM > ${ETU_MAX}/g; s/entre 1 et 38/entre 1 et ${ETU_MAX}/g; s/\(1 à 38\)/(1 à ${ETU_MAX})/g" "$TMP"
 if grep -qE 'NUM > 38\b' "$TMP"; then die "limite à 38 non relevée dans le script du $NOM (version différente ?)."; fi
+
+# CTF1 : deux mots de passe sont pris dans des listes de 38 mots, à la
+# position du numéro. Au-delà de 38, on repart du début des listes (39 → les
+# mots du 1). Identique à l'original pour 1 à 38 ; les flags, eux, viennent
+# de la lettre de l'étudiant et restent propres à chacun.
+sed -i -E 's/MOTS_POP3\[\$\(\(NUMERO - 1\)\)\]/MOTS_POP3[$(( (NUMERO - 1) % ${#MOTS_POP3[@]} ))]/; s/MOTS_ADMIN\[\$\(\(NUMERO - 1\)\)\]/MOTS_ADMIN[$(( (NUMERO - 1) % ${#MOTS_ADMIN[@]} ))]/' "$TMP"
+if grep -qE 'MOTS_(POP3|ADMIN)\[\$\(\(NUMERO - 1\)\)\]' "$TMP"; then die "listes du CTF1 non adaptées (version différente ?)."; fi
 log "installation du $NOM (étudiant $ETU)"
 
 # --- 2. Démarrage et accès Internet ------------------------------------------
