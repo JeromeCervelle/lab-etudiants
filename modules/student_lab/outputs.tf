@@ -18,13 +18,20 @@ output "vm_ids" {
   value       = { for k, vm in proxmox_virtual_environment_vm.vm : k => vm.vm_id }
 }
 
-# Conteneur CTF, ex. { vmid = 10019, nom = "CTF1-Etudiant01", ip = "192.168.56.50" },
-# ou null si le challenge n'est pas activé.
+# Conteneur CTF RÉELLEMENT créé, ex.
+#   { vmid = 10019, nom = "CTF1-Etudiant01", ip = "192.168.56.50" }
+# ou null si l'étudiant n'en a pas.
+#
+# Les valeurs sont lues sur la ressource (son état), et non recalculées à
+# partir de la configuration : après un apply limité à quelques étudiants
+# (-target), seuls ceux dont le conteneur existe apparaissent. try() renvoie
+# null quand la ressource n'a pas d'instance (challenge désactivé, ou
+# étudiant pas encore déployé).
 output "ctf" {
-  description = "Conteneur CTF de l'étudiant (null si désactivé)"
-  value = local.ctf_on ? {
-    vmid = local.ctf_vmid
-    nom  = "${local.ctf_nom}-Etudiant${local.ctf_nn}"
+  description = "Conteneur CTF réellement créé pour l'étudiant (null sinon)"
+  value = try({
+    vmid = proxmox_virtual_environment_container.ctf[0].vm_id
+    nom  = proxmox_virtual_environment_container.ctf[0].initialization[0].hostname
     ip   = split("/", var.ctf.ip)[0]
-  } : null
+  }, null)
 }
