@@ -135,7 +135,8 @@ resource "proxmox_virtual_environment_vm" "vm" {
   #   "wan"    → bridge WAN commun (vmbr134), avec un tag VLAN éventuel ;
   #   "vlanNN" → bridge correspondant de l'étudiant, sans tag (le VLAN est
   #              porté par le bridge lui-même).
-  # Pour le SNS, la 1re carte devient l'interface out, la 2e in, la 3e dmz1.
+  # Pour le SNS, la 1re carte devient l'interface out, la 2e in, la 3e dmz1,
+  # la 4e dmz2.
   dynamic "network_device" {
     for_each = each.value.nics
     content {

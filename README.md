@@ -16,14 +16,15 @@ Terraform **ne crée ni compte, ni pool, ni bridge** : il crée uniquement les V
                  WAN (wan_bridge = vmbr134, BYOD Wifi)
                           │ out
                      ┌────┴────┐
-                     │   SNS   │   Modele-SNS-4.33 (404)
-                     └─┬─────┬─┘
-                    in │     │ dmz1
-     ETUxx-VLAN01      │     │      ETUxx-VLAN02
-          ┌────────────┘     └────────────┐
-   ┌──────┴───────┐               ┌───────┴──────┐
-   │ client Win11 │ (270)         │ srv Win 2025 │ (267)
-   └──────────────┘               └──────────────┘
+                     │   SNS   │   Modele-SNS-4.8.14 (290)
+                     └─┬──┬──┬─┘
+                    in │  │  │ dmz1
+     ETUxx-VLAN01      │  │  │      ETUxx-VLAN02
+          ┌────────────┘  │  └────────────┐
+   ┌──────┴───────┐       │       ┌───────┴──────┐
+   │ client Win11 │ (270) │       │ srv Win 2025 │ (267)
+   └──────────────┘       │ dmz2  └──────────────┘
+                     ETUxx-VLAN03 (libre)
 ```
 
 | Élément | Formule | Exemple ETU02 |
@@ -50,10 +51,10 @@ Le secret n'est affiché qu'une fois : le noter pour `terraform.tfvars`.
 `qm config` ne voit que les VMs du nœud courant. Pour tout le cluster :
 ```bash
 # Sur quel nœud est chaque template ?
-ls /etc/pve/nodes/*/qemu-server/{404,267,270}.conf
+ls /etc/pve/nodes/*/qemu-server/{290,267,270}.conf
 
 # Config d'un template sur n'importe quel nœud
-for id in 404 267 270; do
+for id in 290 267 270; do
   f=$(ls /etc/pve/nodes/*/qemu-server/$id.conf)
   echo "== $f"; grep -E '^(template|scsi|sata|ide|virtio)[0-9]*:' "$f"
 done
@@ -66,7 +67,7 @@ pvesm status
 
 | Template | VMID | Nœud | Disque |
 |---|---|---|---|
-| Modele-SNS-4.33 | 404 | siohyp1 | `NFS-NAS` qcow2 |
+| Modele-SNS-4.8.14 | 290 | siohyp2 | `NFS-NAS` qcow2, 100 Go |
 | SRV2025MODELE (Windows Server 2025) | 267 | siohyp2 | `NFS-NAS` qcow2, 50 Go |
 | WIN11CLIENT (Windows 11 25H2) | 270 | siohyp2 | `NFS-NAS` qcow2, 70 Go |
 
@@ -141,7 +142,7 @@ Dans `classes/sio2026.tfvars`, la variable `lab_vms` décrit le lab d'un étudia
 ```hcl
 # dans terraform.tfvars (285 = exemple, à adapter)
 templates = {
-  sns    = { vm_id = 404, node = "siohyp1" }
+  sns    = { vm_id = 290, node = "siohyp2" }
   winsrv = { vm_id = 267, node = "siohyp2" }
   wincli = { vm_id = 270, node = "siohyp2" }
   kali   = { vm_id = 285, node = "siohyp2" }
