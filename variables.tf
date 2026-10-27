@@ -187,8 +187,8 @@ variable "lab_vms" {
   #                    in  │ │ │ dmz1
   #            VLAN01 ─────┘ │ └───── VLAN02
   #          192.168.56.0/24 │     172.16.10.0/24
-  #                          │ dmz2
-  #                       VLAN03  (libre, à adresser par l'étudiant)
+  #                          │ dmz2, dmz3, dmz4
+  #                 VLAN03, VLAN04, VLAN05  (libres, à adresser par l'étudiant)
   #      ┌──────┼──────────┐        ┌────┴──────┐
   #  client   Linux      Kali   serveur 2025  Mutillidae
   #  Win11    Mint       Linux  (267, UEFI)   (286)
@@ -198,7 +198,7 @@ variable "lab_vms" {
   #   sns 1, srv 2, cli 3, mint 4, kali 5, mutillidae 6  → ETU01 = 10011 à 10016
   #   (l'index 9 est réservé au conteneur CTF de la branche ctf-challenge)
   default = {
-    sns  = { index = 1, template = "sns", nics = ["wan", "vlan01", "vlan02", "vlan03"], cores = 1, memory = 2048 }
+    sns  = { index = 1, template = "sns", nics = ["wan", "vlan01", "vlan02", "vlan03", "vlan04", "vlan05"], cores = 1, memory = 2048 }
     srv  = { index = 2, template = "winsrv", nics = ["vlan02"], cores = 2, memory = 4096, bios = "ovmf" }
     cli  = { index = 3, template = "wincli", nics = ["vlan01"], cores = 2, memory = 4096, bios = "ovmf" }
     mint = { index = 4, template = "mint", nics = ["vlan01"], cores = 2, memory = 2048 }

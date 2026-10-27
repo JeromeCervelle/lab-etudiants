@@ -23,8 +23,9 @@ Terraform **ne crée ni compte, ni pool, ni bridge** : il crée uniquement les V
           ┌────────────┘  │  └────────────┐
    ┌──────┴───────┐       │       ┌───────┴──────┐
    │ client Win11 │ (270) │       │ srv Win 2025 │ (267)
-   └──────────────┘       │ dmz2  └──────────────┘
-                     ETUxx-VLAN03 (libre)
+   └──────────────┘       │       └──────────────┘
+                          │ dmz2, dmz3, dmz4
+              ETUxx-VLAN03, VLAN04, VLAN05 (libres)
 ```
 
 | Élément | Formule | Exemple ETU02 |
